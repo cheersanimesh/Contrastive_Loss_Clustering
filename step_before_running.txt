@@ -1,0 +1,7 @@
+1. Create a folder named dataset_dump ( if not already created )
+2. create a folder named after the dataset in the dataset_dump folder
+3. create a logs folder ( if not already created )
+4. install requirements as mentioned in the requirements.txt
+5. Create a folder named model_checkpoints ( if not already created )
+6. Create a folder named Results ( if not already created )
+7. expose the path for the project directory for easy acess
