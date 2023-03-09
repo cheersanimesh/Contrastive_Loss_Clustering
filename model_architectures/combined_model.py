@@ -99,6 +99,22 @@ class combined_model:
         self.clustering_head.save(f"../model_checkpoints/clustering_head {self.time_stamp}.h5")
     
 
+    def kmeans_centres(self, embeddings, k):
+        ## inputs embeddings returns KMEANS centres/centroids with number of centroids =k 
+
+        ## ------Insert the code below ---------
+        k_means_centres= np.array([]) 
+        return k_means_centres
+
+    def finch_centres(self, embeddings):
+        ## inputs embeddings and returns the centres/partitions returned if FINCH algorithm
+        ## stopping criteria may be assumed as required
+        ## ------Insert the code below ---------
+
+        finch_centres = np.array([])
+        return finch_centres
+    
+
 
         
     

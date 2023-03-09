@@ -1,36 +1,59 @@
 import tensorflow as tf
 
+eps= 1e-8
 class Clustering_loss:
   
-    def __init__(self, mode='Standard_KMeans'):
+    def __init__(self, mode='SCCL'):
       self.mode=mode
     
-    def compute_loss(self, hidden1, hidden2, temperature= 0.5):
+    def get_target_distb(self, batch):
+        weight = (batch**2)/(tf.reduce_sum(batch, axis=0)+1e-9)
+        return tf.transpose(weight)/tf.transpose(tf.reduce_sum(weight,axis=1))
+    
+    def kmeans_centres(self, embeddings, k):
+        ## inputs embeddings returns KMEANS centres/centroids with number of centroids =k 
 
-        if(mode=='Standard_KMeans'):
+        ## ------Insert the code below ---------
+        k_means_centres= np.array([]) 
+        return k_means_centres
 
-            ##Dummy Code
+    def finch_centres(self, embeddings):
+        ## inputs embeddings and returns the centres/partitions returned if FINCH algorithm
+        ## stopping criteria may be assumed as required
+        ## ------Insert the code below ---------
 
-            weights=1.0
-            LARGE_NUM=1e9
-            hidden1_large = hidden1
-            hidden2_large = hidden2
-            labels = tf.one_hot(tf.range(batch_size), batch_size * 2)
-            masks = tf.one_hot(tf.range(batch_size), batch_size) 
+        finch_centres = np.array([])
+        return finch_centres
+    
+    def kl_div(self, predict, target):
+        p1 = predict+eps
+        t1= target+eps
+        logP= tf.math.log(p1)
+        logT= tf.math.log(t1)
+        TlogTdI = target * (logT - logP)
+        kld= tf.reduce_sum(TlogTdI, axis=1)
+        return tf.reduce_mean(kld)
 
-            logits_aa = tf.matmul(hidden1, hidden1_large, transpose_b=True) / temperature
-            logits_aa = logits_aa - masks * LARGE_NUM
-            logits_bb = tf.matmul(hidden2, hidden2_large, transpose_b=True) / temperature
-            logits_bb = logits_bb - masks * LARGE_NUM
-            logits_ab = tf.matmul(hidden1, hidden2_large, transpose_b=True) / temperature
-            logits_ba = tf.matmul(hidden2, hidden1_large, transpose_b=True) / temperature
+    def get_cluster_prob(self,embeddings, cluster_centres):
+        norm_squared= tf.reduce_sum((tf.expand_dims(embeddings,1)- cluster_centres)**2, axis=2)
+        numr= 1.0 / (1.0 + (norm_squared / self.alpha))
+        power = float(self.alpha + 1) / 2
+        return numr / tf.reduce_sum(numr, axis=1, keepdims=True)
 
-            loss_a = tf.nn.softmax_cross_entropy_with_logits(
-                labels, tf.concat([logits_ab, logits_aa], 1))
-                
-            loss_b = tf.nn.softmax_cross_entropy_with_logits(
-                labels, tf.concat([logits_ba, logits_bb], 1))
-            
-            loss = tf.reduce_mean(loss_a + loss_b)
+    def compute_loss(self, hidden1, hidden2, cluster_centres=None):
 
-            return loss
+        if(self.mode=='SCCL'):
+            cluster_probs1= self.get_cluster_prob(self, hidden1, cluster_centres=cluster_centres)
+            target1= self.get_target_distb(cluster_probs1)
+            cluster_loss_1 = self.kl_div((cluster_probs1+1e-08).log(), target1)/cluster_probs1.shape[0]
+
+            cluster_probs2= self.get_cluster_prob(self, hidden2, cluster_centres=cluster_centres)
+            target2= self.get_target_distb(cluster_probs2)
+            cluster_loss_2 = self.kl_div((cluster_probs2+1e-08).log(), target2)/cluster_probs2.shape[0]
+
+            return (cluster_loss_1+cluster_loss_2)/2.0
+        
+
+
+
+
