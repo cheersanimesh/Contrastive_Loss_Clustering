@@ -7,6 +7,8 @@ import sys
 from tqdm import tqdm
 import datetime
 from tensorflow.keras import optimizers
+from sklearn.cluster import KMeans
+from finch import FINCH
 
 sys.path.append(0,'-----vars directory-----')
 import vars
@@ -103,16 +105,16 @@ class combined_model:
         ## inputs embeddings returns KMEANS centres/centroids with number of centroids =k 
 
         ## ------Insert the code below ---------
-        k_means_centres= np.array([]) 
-        return k_means_centres
+        kmeans = KMeans(n_clusters=k).fit(embeddings)
+        centroids = kmeans.cluster_centers_
+        return centroids
 
     def finch_centres(self, embeddings):
         ## inputs embeddings and returns the centres/partitions returned if FINCH algorithm
         ## stopping criteria may be assumed as required
         ## ------Insert the code below ---------
-
-        finch_centres = np.array([])
-        return finch_centres
+        c, num_clust, req_c = FINCH(embeddings)
+        return (c, num_clust, req_c)
     
 
 
