@@ -1,4 +1,5 @@
 import tensorflow as tf
+import vars
 
 eps= 1e-8
 class Clustering_loss:
@@ -9,21 +10,6 @@ class Clustering_loss:
     def get_target_distb(self, batch):
         weight = (batch**2)/(tf.reduce_sum(batch, axis=0)+1e-9)
         return tf.transpose(weight)/tf.transpose(tf.reduce_sum(weight,axis=1))
-    
-    def kmeans_centres(self, embeddings, k):
-        ## inputs embeddings returns KMEANS centres/centroids with number of centroids =k 
-
-        ## ------Insert the code below ---------
-        k_means_centres= np.array([]) 
-        return k_means_centres
-
-    def finch_centres(self, embeddings):
-        ## inputs embeddings and returns the centres/partitions returned if FINCH algorithm
-        ## stopping criteria may be assumed as required
-        ## ------Insert the code below ---------
-
-        finch_centres = np.array([])
-        return finch_centres
     
     def kl_div(self, predict, target):
         p1 = predict+eps
@@ -41,7 +27,7 @@ class Clustering_loss:
         return numr / tf.reduce_sum(numr, axis=1, keepdims=True)
 
     def compute_loss(self, hidden1, hidden2, cluster_centres=None):
-
+        
         if(self.mode=='SCCL'):
             cluster_probs1= self.get_cluster_prob(self, hidden1, cluster_centres=cluster_centres)
             target1= self.get_target_distb(cluster_probs1)

@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+import vars
 class Contrastive_loss:
   
     def __init__(self, mode='NCENT'):
@@ -10,8 +10,8 @@ class Contrastive_loss:
         LARGE_NUM=1e9
         hidden1_large = hidden1
         hidden2_large = hidden2
-        labels = tf.one_hot(tf.range(batch_size), batch_size * 2)
-        masks = tf.one_hot(tf.range(batch_size), batch_size) 
+        labels = tf.one_hot(tf.range(vars.batch_size), vars.batch_size * 2)
+        masks = tf.one_hot(tf.range(vars.batch_size), vars.batch_size) 
 
         logits_aa = tf.matmul(hidden1, hidden1_large, transpose_b=True) / temperature
         logits_aa = logits_aa - masks * LARGE_NUM

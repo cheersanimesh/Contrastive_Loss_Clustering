@@ -8,6 +8,7 @@ import model_architectures.combined_model as cm_model
 
 import model_architectures.logger as logger
 import testing_models.testing as testing
+from sklearn.metrics.cluster import normalized_mutual_info_score, fowlkes_mallows_score, adjusted_rand_score
 
 print("Starting Execution")
 
@@ -52,13 +53,13 @@ rand_score= scores[1]
 fmi_score= scores[2]
 
 print("NMI SCORE --> ")
-print(normalized_mutual_info_score(y_test,predictions))
+print(normalized_mutual_info_score(test_labels,predictions))
 
 print("Adjusted Rand Score -->  ")
-print(adjusted_rand_score(y_test, predictions))
+print(adjusted_rand_score(test_labels, predictions))
 
 print("Fowlkes Mallows Score --> ")
-print(fowlkes_mallows_score (y_test, predictions))
+print(fowlkes_mallows_score (test_labels, predictions))
 
 logger.logger_multi_write(f'Results/Predictions {timestamp} .txt','a',['Predictions --> ', str(predictions)])
 logger.logger_multi_write(f'Results/Actual Labels {timestamp} .txt','a',['Actual Labels --> ', str(predictions)])

@@ -9,6 +9,7 @@ import datetime
 from tensorflow.keras import optimizers
 from sklearn.cluster import KMeans
 from finch import FINCH
+import numpy as np
 
 sys.path.append(0,'-----vars directory-----')
 import vars
@@ -49,6 +50,24 @@ class combined_model:
         logger.logger_single_write(f"logs/loss_logs {self.time_stamp}.txt",'w'," starting ")
         logger.logger_single_write(f"logs/contrastive_logs {self.time_stamp}.txt","w","writing losses : \n")
         logger.logger_single_write(f"logs/clustering_logs {self.time_stamp}.txt","w","writing losses: \n")
+        
+        logger.logger_single_write(f"logs/loss_logs {self.time_stamp}.txt",'w'," initial_stage ")
+        logger.logger_single_write(f"logs/contrastive_logs {self.time_stamp}.txt","w","inital_stage : \n")
+        
+        for epochs in range(vars.initial_training_epochs):
+            logger.logger_single_write(f"logs/loss_logs {self.time_stamp}.txt","a",f"Starting Epoch{epochs}: \n \n")
+            logger.logger_single_write(f"logs/contrastive_logs {self.time_stamp}.txt","a",f"Starting Epoch{epochs}: \n \n")
+
+            for idx, mini_batch in tqdm(enumerate(dataset)):
+                loss= self.__train_step_initial(mini_batch)
+                logger.logger_multi_write(f"logs/loss_logs {self.time_stamp}.txt",'a',["  ||  "+str(loss['loss'].numpy())+"   ||  ","\n"])
+
+        embeddings= self.__get_embeddings(dataset=dataset)
+        self.cluster_centres= self.return_cluster_centres(embeddings)
+
+        logger.logger_single_write(f"logs/loss_logs {self.time_stamp}.txt",'w'," \n second_stage ")
+        logger.logger_single_write(f"logs/contrastive_logs {self.time_stamp}.txt","w","\n second_stage : \n")
+        logger.logger_single_write(f"logs/clustering_logs {self.time_stamp}.txt","w","\n second_stage : \n")
 
         for epochs in range(vars.training_epochs):
             logger.logger_single_write(f"logs/loss_logs {self.time_stamp}.txt","a",f"Starting Epoch{epochs}: \n \n")
@@ -59,7 +78,44 @@ class combined_model:
                 loss= self.__train_step(mini_batch)
                 logger.logger_multi_write(f"logs/loss_logs {self.time_stamp}.txt",'a',["  ||  "+str(loss['loss'].numpy())+"   ||  ","\n"])
 
-    def __train_step(self, data):
+    def return_cluster_centres(self, data):
+        data_numpy= data.numpy()
+        centres=[]
+        if(vars.centre_initilization_mode=='finch'):
+            centres= self.finch_centres(data_numpy)
+        if(vars.centre_initilization_mode=='kmeans'):
+            centes= self.kmeans_centres(data_numpy)
+        
+        return tf.Variable(centres, dtype= tf.float32)
+    
+    def __train_step_initial(self, data):
+
+        with tf.GradientTape() as tape:
+            type_1_embeddings_contrastive= self.call_contrastive(data[0])
+            type_2_embeddings_contrastive= self.call_contrastive(data[1])
+            contrastive_loss= self.contrastive_loss.compute_loss(type_1_embeddings_contrastive, type_2_embeddings_contrastive)
+            
+            loss= contrastive_loss
+
+        logger.logger_single_write(f"logs/contrastive_logs {self.time_stamp}.txt",'a',f"|| {contrastive_loss} ||")
+
+        print(f"Contrastive Loss -->  {contrastive_loss}")
+
+        gradients= tape.gradient(loss, {'base_cnn':self.base_network.trainable_weights,
+                                      'contrastive_level':self.contrastive_head.trainable_weights})
+
+        self.optimizer.apply_gradients(
+            zip(gradients['base_cnn'], self.base_cnn.trainable_weights)
+        )
+        self.optimizer.apply_gradients(
+            zip(gradients['contrastive_level'], self.contrastive_head.trainable_weights)
+        )
+        self.loss_tracker.update_state(loss)
+        return {"loss": self.loss_tracker.result()}
+
+        
+            
+    def __train_step(self, data, cluster_centres=None):
 
         with tf.GradientTape() as tape:
             type_1_embeddings_contrastive= self.call_contrastive(data[0])
@@ -69,7 +125,7 @@ class combined_model:
             type_2_embeddings_clustering= self.call_clustering(data[1])
             
             contrastive_loss= self.contrastive_loss.compute_loss(type_1_embeddings_contrastive, type_2_embeddings_contrastive)
-            clustering_loss= self.clustering_loss.compute_loss(type_1_embeddings_clustering, type_2_embeddings_clustering)
+            clustering_loss= self.clustering_loss.compute_loss(type_1_embeddings_clustering, type_2_embeddings_clustering, cluster_centres=self.cluster_centres)
 
             loss = contrastive_loss + clustering_loss
 
@@ -81,7 +137,8 @@ class combined_model:
 
         gradients= tape.gradient(loss, {'base_cnn':self.base_network.trainable_weights,
                                       'contrastive_level':self.contrastive_head.trainable_weights,
-                                      'clustering_level':self.clustering_head.trainable_weights})
+                                      'clustering_level':self.clustering_head.trainable_weights, 
+                                      'cluster_centres': self.cluster_centres})
 
         self.optimizer.apply_gradients(
             zip(gradients['base_cnn'], self.base_cnn.trainable_weights)
@@ -91,6 +148,9 @@ class combined_model:
         )
         self.optimizer.apply_gradients(
             zip(gradients['clustering_level'], self.clustering_head.trainable_weights)
+        )
+        self.optimizer.apply_gradients(
+            zip(gradients['cluster_centres'], self.cluster_centres)
         )
         self.loss_tracker.update_state(loss)
         return {"loss": self.loss_tracker.result()}
@@ -116,6 +176,18 @@ class combined_model:
         c, num_clust, req_c = FINCH(embeddings)
         return (c, num_clust, req_c)
     
+    def __get_embeddings(self, dataset):
+
+        embeddings=[]
+        for mini_batch in dataset:
+            embeddings_base_cnn= self.base_cnn(mini_batch) 
+            embeddings_clustering= self.clustering_head(embeddings_base_cnn)
+            for embed in embeddings_clustering:
+                embeddings.append(embed.numpy())
+
+        embeddings= np.array(embeddings)
+
+        return embeddings
 
 
         
