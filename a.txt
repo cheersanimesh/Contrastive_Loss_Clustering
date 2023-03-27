@@ -1,0 +1,9 @@
+Results/
+__pycache__/
+dataset_dump/
+dataset_loader/
+logs/
+loss_functions/
+model_architectures/
+model_checkpoints/
+testing_models/

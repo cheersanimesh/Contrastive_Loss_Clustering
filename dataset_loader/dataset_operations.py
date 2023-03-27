@@ -16,11 +16,11 @@ def read_preprocess_and_augment_image(filename):
     aug_image = generate_augmentation(image)
     return aug_image
 
-def read_and_preprocess_image(filename, target_shape):
+def read_and_preprocess_image(filename):
     image_string = tf.io.read_file(filename)
     image = tf.image.decode_jpeg(image_string, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.resize(image, target_shape,method='bilinear')
+    image = tf.image.resize(image, vars.target_shape,method='bilinear')
     return image
 
 def generate_augmentation(image):

@@ -1,4 +1,4 @@
-./dataset_dump
-./logs
-./model_checkpoints
-./Results
+dataset_dump
+logs
+model_checkpoints
+Results

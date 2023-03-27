@@ -3,6 +3,16 @@ import keras
 import numpy as np
 import vars
 import sys
+parrent_path= "/home/csb1051719/ContrastiveClustering/Contrastive_Loss_Clustering/"
+
+paths=[]
+with open('a.txt', 'r') as f:
+	directories= f.readlines()
+
+for dir in directories:
+	sys.path.append(parrent_path+dir.strip())
+print(sys.path)
+##sys.path.append("/home/csb1051719/ContrastiveClustering/Contrastive_Loss_Clustering/dataset_loader")
 import dataset_loader.load_dataset as ld_data
 import model_architectures.combined_model as cm_model
 
@@ -28,7 +38,7 @@ timestamp= contrastive_clustering_model.time_stamp
 
 print("Compiling model")
 
-contrastive_clustering_model.compile(optimizer= vars.optimizers)
+contrastive_clustering_model.compile(optimizer= vars.training_optimizer)
 
 print("Training Model")
 contrastive_clustering_model.fit(training_dataset)
