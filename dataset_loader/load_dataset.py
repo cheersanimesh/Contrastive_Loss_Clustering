@@ -3,9 +3,10 @@ import cv2
 import tensorflow as tf
 from glob import glob
 import dataset_operations
+import os
 import numpy as np
 
-parrent_path = "/home/csb1051719/ContrastiveClustering/Contrastive_Loss_Clustering"
+parrent_path = os.getcwd()
 
 
 class dataset:
