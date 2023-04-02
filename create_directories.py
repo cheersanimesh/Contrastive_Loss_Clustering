@@ -11,3 +11,15 @@ for name_dir in directories_list:
     if(not os.path.exists(dir_path)):
         os.mkdir(dir_path)
         sys.path.append(dir_path)
+
+train_dataset_path= os.path.join(parrent_dir,'dataset_dump', 'train')
+test_dataset_path= os.path.join(parrent_dir, 'dataset_dump','test')
+
+if(not os.path.exists(train_dataset_path)):
+    os.mkdir(train_dataset_path)
+
+if(not os.path.exists(test_dataset_path)):
+    os.mkdir(test_dataset_path)
+
+
+

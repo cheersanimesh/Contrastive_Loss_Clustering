@@ -6,6 +6,7 @@ parrent_path= os.getcwd()
 dataset_name = vars.dataset
 
 dataset_path= os.path.join(parrent_path,"dataset_dump")
+dataset_path=os.path.join(parrent_path,"train")
 
 dataset_path= os.path.join(dataset_path, dataset_name)
 
