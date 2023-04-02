@@ -1,2 +1,2 @@
 clear
-python create_directories.py
+sudo python create_directories.py
