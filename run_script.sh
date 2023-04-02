@@ -1,3 +1,3 @@
 clear
-python create_dataset.py
-python main.py
+sudo python create_dataset.py
+sudo python main.py
