@@ -21,7 +21,8 @@ class Clustering_loss:
         print(logP.shape)
         print(logT.shape)
         print(target.shape)
-        TlogTdI = tf.transpose(target) * tf.math.subtract(logT - logP)
+        TlogTdI = tf.math.subtract(logT, logP)
+        TlogTdI = tf.linalg.matmul(tf.transpose(target), TlogTdI)
         kld= tf.reduce_sum(TlogTdI, axis=1)
         return tf.reduce_mean(kld)
 
