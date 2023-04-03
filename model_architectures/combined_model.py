@@ -107,7 +107,7 @@ class combined_model:
         if (vars.centre_initilization_mode == 'finch'):
             centres = self.finch_centres(data)
         if (vars.centre_initilization_mode == 'kmeans'):
-            centes = self.kmeans_centres(data)
+            centres = self.kmeans_centres(data)
 
         return tf.Variable(centres, dtype=tf.float32)
 
@@ -193,7 +193,7 @@ class combined_model:
         self.clustering_head.save(
             f"../model_checkpoints/clustering_head {self.time_stamp}.h5")
 
-    def kmeans_centres(self, embeddings, k):
+    def kmeans_centres(self, embeddings, k= vars.num_clusters):
         # inputs embeddings returns KMEANS centres/centroids with number of centroids =k
 
         # ------Insert the code below ---------
@@ -214,6 +214,8 @@ class combined_model:
         ctr=0
         for mini_batch in dataset:
             print(ctr)
+            if(ctr>=100):
+                break
             ctr+=1
             embeddings_base_cnn_1 = self.base_cnn(mini_batch[0])
             embeddings_base_cnn_2= self.base_cnn(mini_batch[1])

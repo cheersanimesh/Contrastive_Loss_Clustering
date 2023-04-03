@@ -24,7 +24,7 @@ clustering_head_input=128
 clustering_head_output=8
 training_epochs=100
 
-centre_initilization_mode='finch'
+centre_initilization_mode='kmeans'
 initial_training_epochs=100
 next_training_epochs= 100
 
