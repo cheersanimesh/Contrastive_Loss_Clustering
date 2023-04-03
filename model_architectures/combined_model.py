@@ -102,12 +102,12 @@ class combined_model:
                                           "  ||  "+str(loss['loss'].numpy())+"   ||  ", "\n"])
 
     def return_cluster_centres(self, data):
-        data_numpy = data.numpy()
+        #data_numpy = data.numpy()
         centres = []
         if (vars.centre_initilization_mode == 'finch'):
-            centres = self.finch_centres(data_numpy)
+            centres = self.finch_centres(data)
         if (vars.centre_initilization_mode == 'kmeans'):
-            centes = self.kmeans_centres(data_numpy)
+            centes = self.kmeans_centres(data)
 
         return tf.Variable(centres, dtype=tf.float32)
 
@@ -211,7 +211,10 @@ class combined_model:
     def __get_embeddings(self, dataset):
 
         embeddings = []
+        ctr=0
         for mini_batch in dataset:
+            print(ctr)
+            ctr+=1
             embeddings_base_cnn_1 = self.base_cnn(mini_batch[0])
             embeddings_base_cnn_2= self.base_cnn(mini_batch[1])
 
@@ -220,8 +223,10 @@ class combined_model:
 
             for embed in embeddings_clustering_1:
                 embeddings.append(embed.numpy())
+            '''
             for embed in embeddings_clustering_2:
                 embeddings.append(embed.numpy())
+            '''
 
         embeddings = np.array(embeddings)
 
