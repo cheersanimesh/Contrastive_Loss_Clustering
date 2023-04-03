@@ -180,7 +180,7 @@ class combined_model:
                 self.clustering_head.trainable_weights)
         )
         self.optimizer.apply_gradients(
-            zip(gradients['cluster_centres'], self.cluster_centres)
+            zip([gradients['cluster_centres']], [self.cluster_centres])
         )
         self.loss_tracker.update_state(loss)
         return {"loss": self.loss_tracker.result()}
