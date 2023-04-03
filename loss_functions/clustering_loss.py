@@ -18,11 +18,11 @@ class Clustering_loss:
         t1= target+eps
         logP= tf.math.log(p1)
         logT= tf.math.log(t1)
-        print(logP.shape)
-        print(logT.shape)
-        print(target.shape)
-        TlogTdI = tf.math.subtract(logT, logP)
-        TlogTdI = tf.linalg.matmul(tf.transpose(target), TlogTdI)
+        ##print(logP.shape)
+        ##print(logT.shape)
+        ##print(target.shape)
+        #TlogTdI = tf.math.subtract(logT, logP)
+        TlogTdI = tf.math.multiply(target, tf.math.subtract(logT, logP))
         kld= tf.reduce_sum(TlogTdI, axis=1)
         return tf.reduce_mean(kld)
 
@@ -30,7 +30,7 @@ class Clustering_loss:
         norm_squared= tf.reduce_sum((tf.expand_dims(embeddings,1)- cluster_centres)**2, axis=2)
         numr= 1.0 / (1.0 + (norm_squared / self.alpha))
         power = float(self.alpha + 1) / 2
-        numr= tf.math.power(numr, power)
+        numr= tf.math.pow(numr, power)
         output = numr / tf.reduce_sum(numr, axis=1, keepdims=True)
         return output
 
