@@ -25,7 +25,7 @@ clustering_head_output=8
 training_epochs=100
 
 centre_initilization_mode='finch'
-initial_training_epochs=100
+initial_training_epochs=0
 next_training_epochs= 100
 
 training_optimizer= optimizers.legacy.Adam(learning_rate=0.001,epsilon=0.1)

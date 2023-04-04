@@ -212,11 +212,17 @@ class combined_model:
 
         embeddings = []
         for mini_batch in dataset:
-            embeddings_base_cnn = self.base_cnn(mini_batch)
-            embeddings_clustering = self.clustering_head(embeddings_base_cnn)
-            for embed in embeddings_clustering:
+            embeddings_base_cnn_1 = self.base_cnn(mini_batch[0])
+            embeddings_clustering_1 = self.clustering_head(
+                embeddings_base_cnn_1)
+            embeddings_base_cnn_2 = self.base_cnn(mini_batch[1])
+            embeddings_clustering_2 = self.clustering_head(
+                embeddings_base_cnn_2)
+            for embed in embeddings_clustering_1:
                 embeddings.append(embed.numpy())
 
+            for embed in embeddings_clustering_2:
+                embeddings.append(embed.numpy())
         embeddings = np.array(embeddings)
 
         return embeddings
