@@ -17,6 +17,7 @@ import vars
 import model_architectures.logger as logger
 import loss_functions.clustering_loss as cl_loss
 import loss_functions.contrastive_loss as co_loss
+import os
 
 
 class combined_model:
@@ -102,12 +103,12 @@ class combined_model:
                                           "  ||  "+str(loss['loss'].numpy())+"   ||  ", "\n"])
 
     def return_cluster_centres(self, data):
-        data_numpy = data.numpy()
+        # data_numpy = data.numpy()
         centres = []
         if (vars.centre_initilization_mode == 'finch'):
-            centres = self.finch_centres(data_numpy)
+            centres = self.finch_centres(data)
         if (vars.centre_initilization_mode == 'kmeans'):
-            centes = self.kmeans_centres(data_numpy)
+            centres = self.kmeans_centres(data)
 
         return tf.Variable(centres, dtype=tf.float32)
 
@@ -180,20 +181,28 @@ class combined_model:
                 self.clustering_head.trainable_weights)
         )
         self.optimizer.apply_gradients(
-            zip(gradients['cluster_centres'], self.cluster_centres)
+            zip([gradients['cluster_centres']], [self.cluster_centres])
         )
         self.loss_tracker.update_state(loss)
         return {"loss": self.loss_tracker.result()}
 
     def save_models(self):
+        parrent_path_1 = os.getcwd()
         self.base_cnn.save(
-            f"../model_checkpoints/base_cnn {self.time_stamp}.h5")
+            f"{parrent_path_1}/model_checkpoints/base_cnn {self.time_stamp}.h5")
         self.contrastive_head.save(
-            f"../model_checkpoints/contrastive_head {self.time_stamp}.h5")
+            f"{parrent_path_1}/model_checkpoints/contrastive_head {self.time_stamp}.h5")
         self.clustering_head.save(
-            f"../model_checkpoints/clustering_head {self.time_stamp}.h5")
+            f"{parrent_path_1}/model_checkpoints/clustering_head {self.time_stamp}.h5")
 
-    def kmeans_centres(self, embeddings, k):
+        self.base_cnn.save(
+            f"base_cnn {self.time_stamp}.h5")
+        self.contrastive_head.save(
+            f"contrastive_head {self.time_stamp}.h5")
+        self.clustering_head.save(
+            f"clustering_head {self.time_stamp}.h5")
+
+    def kmeans_centres(self, embeddings, k=vars.num_clusters):
         # inputs embeddings returns KMEANS centres/centroids with number of centroids =k
 
         # ------Insert the code below ---------
@@ -211,15 +220,26 @@ class combined_model:
     def __get_embeddings(self, dataset):
 
         embeddings = []
+        ctr = 0
         for mini_batch in dataset:
+            print(ctr)
+            if (ctr >= 400):
+                break
+            ctr += 1
             embeddings_base_cnn_1 = self.base_cnn(mini_batch[0])
+            embeddings_base_cnn_2 = self.base_cnn(mini_batch[1])
+
             embeddings_clustering_1 = self.clustering_head(
                 embeddings_base_cnn_1)
-            embeddings_base_cnn_2 = self.base_cnn(mini_batch[1])
             embeddings_clustering_2 = self.clustering_head(
                 embeddings_base_cnn_2)
+
             for embed in embeddings_clustering_1:
                 embeddings.append(embed.numpy())
+            '''
+            for embed in embeddings_clustering_2:
+                embeddings.append(embed.numpy())
+            '''
 
             for embed in embeddings_clustering_2:
                 embeddings.append(embed.numpy())

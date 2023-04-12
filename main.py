@@ -3,16 +3,25 @@ import keras
 import numpy as np
 import vars
 import sys
-parrent_path= "/home/csb1051719/ContrastiveClustering/Contrastive_Loss_Clustering/"
+import os 
 
-paths=[]
+parrent_path= os.getcwd()
+'''
 with open('a.txt', 'r') as f:
 	directories= f.readlines()
 
 for dir in directories:
 	sys.path.append(parrent_path+dir.strip())
 print(sys.path)
+'''
+directories_list = ['Results','__pycache__','dataset_dump','dataset_loader','logs','loss_functions','model_architectures','model_checkpoints','testing_models']
+
+for name_dir in directories_list:
+    dir_path= os.path.join(parrent_path, name_dir)
+    sys.path.append(dir_path)
+
 ##sys.path.append("/home/csb1051719/ContrastiveClustering/Contrastive_Loss_Clustering/dataset_loader")
+
 import dataset_loader.load_dataset as ld_data
 import model_architectures.combined_model as cm_model
 
@@ -62,6 +71,12 @@ nmi_score= scores[0]
 rand_score= scores[1]
 fmi_score= scores[2]
 
+print(nmi_score)
+print(rand_score)
+print(fmi_score)
+
+test_labels= np.squeeze(test_labels)
+
 print("NMI SCORE --> ")
 print(normalized_mutual_info_score(test_labels,predictions))
 
@@ -72,7 +87,7 @@ print("Fowlkes Mallows Score --> ")
 print(fowlkes_mallows_score (test_labels, predictions))
 
 logger.logger_multi_write(f'Results/Predictions {timestamp} .txt','a',['Predictions --> ', str(predictions)])
-logger.logger_multi_write(f'Results/Actual Labels {timestamp} .txt','a',['Actual Labels --> ', str(predictions)])
+logger.logger_multi_write(f'Results/Actual Labels {timestamp} .txt','a',['Actual Labels --> ', str(test_labels)])
 
 logger.logger_single_write(f'Results/Scores {timestamp} .txt','a',f'NMI Score --> {nmi_score} \n')
 logger.logger_single_write(f'Results/Scores {timestamp} .txt','a',f'Rand Score --> {rand_score} \n')

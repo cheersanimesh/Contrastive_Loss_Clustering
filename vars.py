@@ -1,6 +1,6 @@
 from tensorflow.keras import optimizers
 
-batch_size= 32
+batch_size= 64
 target_shape=(200,200)
 num_classes =10
 dataset='cifar_10'
@@ -21,12 +21,12 @@ input_shape=(200, 200)
 contrastive_head_input=128
 contrastive_head_output=8
 clustering_head_input=128
-clustering_head_output=8
-training_epochs=100
+clustering_head_output=num_clusters
+training_epochs=5
 
-centre_initilization_mode='finch'
-initial_training_epochs=0
-next_training_epochs= 100
+initial_training_epochs=5
+centre_initilization_mode='kmeans'
+next_training_epochs= 5
 
 training_optimizer= optimizers.legacy.Adam(learning_rate=0.001,epsilon=0.1)
 resnet_arch= "resnet_50"

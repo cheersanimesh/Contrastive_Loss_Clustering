@@ -2,3 +2,4 @@ dataset_dump
 logs
 model_checkpoints
 Results
+model_architectures/model_checkpoints

@@ -1,6 +1,7 @@
 from tensorflow.keras import layers
 from tensorflow.keras import Model
 import tensorflow as tf
+import vars
 
 class clustering_mlp:
 
