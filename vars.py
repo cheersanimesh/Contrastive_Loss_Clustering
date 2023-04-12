@@ -21,7 +21,7 @@ input_shape=(200, 200)
 contrastive_head_input=128
 contrastive_head_output=8
 clustering_head_input=128
-clustering_head_output=8
+clustering_head_output=num_clusters
 training_epochs=100
 
 centre_initilization_mode='kmeans'
