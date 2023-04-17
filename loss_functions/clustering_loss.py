@@ -68,7 +68,8 @@ class Clustering_loss:
             target2= self.get_target_distb(cluster_probs2)
             cluster_loss_2 = self.kl_div(cluster_probs2, target2)/cluster_probs2.shape[0]
 
-            entropy_loss= self.entropy_loss(cluster_probs1, cluster_probs2) 
+            entropy_loss= self.entropy_loss(cluster_probs1, cluster_probs2)
+            print(entropy_loss) 
 
             return ((cluster_loss_1+cluster_loss_2)/2.0) - entropy_loss
         
