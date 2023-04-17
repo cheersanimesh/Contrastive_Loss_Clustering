@@ -34,6 +34,27 @@ class Clustering_loss:
         output = numr / tf.reduce_sum(numr, axis=1, keepdims=True)
         return output
 
+    def entropy_loss(self, probs1, probs2):
+        
+        clusterwise_probs_1 = tf.reduce_sum(probs1, axis=0)
+        clusterwise_probs_2= tf.reduce_sum(probs2, axis=0)
+        sum1= tf.reduce_sum(clusterwise_probs_1)
+        sum2= tf.reduce_sum(clusterwise_probs_2)
+
+        clusterwise_probs_1 = clusterwise_probs_1/sum1
+        clusterwise_probs_2 = clusterwise_probs_2/sum2
+
+        shape1= clusterwise_probs_1.shape[0]
+        shape2= clusterwise_probs_2.shape[0]
+
+        en_val1= tf.math.log(shape1)+tf.math.multiply(clusterwise_probs_1, tf.math.log(clusterwise_probs_1))
+        en_val2= tf.math.log(shape2)+tf.math.multiply(clusterwise_probs_2, tf.math.log(clusterwise_probs_2))
+
+        en1= tf.reduce_sum(en_val1)
+        en2= tf.reduce_sum(en_val2)
+
+        return en1+en2
+
     def compute_loss(self, hidden1, hidden2, cluster_centres=None):
         
         if(self.mode=='SCCL'):
@@ -47,7 +68,9 @@ class Clustering_loss:
             target2= self.get_target_distb(cluster_probs2)
             cluster_loss_2 = self.kl_div(cluster_probs2, target2)/cluster_probs2.shape[0]
 
-            return (cluster_loss_1+cluster_loss_2)/2.0
+            entropy_loss= self.entropy_loss(cluster_probs1, cluster_probs2) 
+
+            return ((cluster_loss_1+cluster_loss_2)/2.0) - entropy_loss
         
 
 
